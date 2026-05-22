@@ -67,6 +67,8 @@ COPY src/ /app/src/
 COPY config/ /app/config/
 COPY scripts/ /app/scripts/
 COPY assets/ /app/assets/
+COPY docker/entrypoint.sh /app/docker/entrypoint.sh
+RUN chmod +x /app/docker/entrypoint.sh
 
 # ── Hyperframes (install globally) ───────────────────────────────────────────
 RUN npm install -g hyperframes@latest

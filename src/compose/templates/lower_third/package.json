@@ -1,0 +1,15 @@
+{
+  "name": "lower-third",
+  "version": "1.0.0",
+  "private": true,
+  "hyperframes": {
+    "fps": 25,
+    "width": 1280,
+    "height": 720,
+    "compositions": {
+      "main": {
+        "duration": "auto"
+      }
+    }
+  }
+}

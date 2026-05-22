@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=720">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    /* ── Base avatar video ─────────────────────────────────────── */
+    video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Lower-third container ─────────────────────────────────── */
+    #lower-third {
+      position: absolute;
+      bottom: 64px;
+      left: 0;
+      padding-left: 48px;
+      transform: translateX(-110%);   /* hidden off-screen; GSAP animates in */
+    }
+
+    .bar {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(8, 8, 8, 0.88);
+      padding: 14px 28px;
+      border-left: 5px solid #00C7FF;
+      backdrop-filter: blur(4px);
+    }
+
+    .title {
+      color: #ffffff;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #b0b8c8;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    /* Hide subtitle row if empty */
+    .subtitle:empty { display: none; }
+
+    /* ── Optional logo overlay ─────────────────────────────────── */
+    #logo {
+      position: absolute;
+      top: 32px;
+      right: 48px;
+      max-height: 56px;
+      max-width: 180px;
+      object-fit: contain;
+      display: none;        /* shown via JS if logo_url is set */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Base avatar video — base.mp4 is copied here before render -->
+  <video src="../../assets/base.mp4" autoplay muted playsinline></video>
+
+  <!-- Lower-third bar -->
+  <div id="lower-third">
+    <div class="bar">
+      <div class="title" id="title"></div>
+      <div class="subtitle" id="subtitle"></div>
+    </div>
+  </div>
+
+  <!-- Optional logo -->
+  <img id="logo" alt="logo">
+
+  <!-- GSAP from CDN (Chrome headless has internet access during render) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
+          integrity="sha512-7eHRwcbYkK4d+lEkWvMUW0An0/XWaFcyUDDDfucOB9e9fqnYyT7u8YveKNEH8gp4v84u7Vl9U0B8x7J0EZJFQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Runtime params injected by hyperframes_render.py -->
+  <!-- HYPERFRAMES_PARAMS -->
+
+  <script>
+    const p = window.__PARAMS__ || {};
+
+    // Populate text
+    document.getElementById('title').textContent = p.title || '';
+    document.getElementById('subtitle').textContent = p.subtitle || '';
+
+    // Optional logo
+    if (p.logo_url) {
+      const logo = document.getElementById('logo');
+      logo.src = p.logo_url;
+      logo.style.display = 'block';
+    }
+
+    // Animate lower-third: slide in → hold → slide out
+    const holdDuration = p.lower_third_hold_s ?? 4.0;
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .to('#lower-third', { x: 0, duration: 0.55, delay: 0.5 })
+      .to('#lower-third', { x: '-110%', duration: 0.45, ease: 'power3.in', delay: holdDuration });
+  </script>
+
+</body>
+</html>
