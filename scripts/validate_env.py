@@ -53,7 +53,7 @@ def main():
             check("CUDA version", True, torch.version.cuda)
             check("cuDNN version", True, str(torch.backends.cudnn.version()))
             gpu_name = torch.cuda.get_device_name(0)
-            vram_gb = torch.cuda.get_device_properties(0).total_mem / (1024**3)
+            vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
             check("GPU", True, f"{gpu_name} ({vram_gb:.1f} GB VRAM)")
         else:
             errors += 1

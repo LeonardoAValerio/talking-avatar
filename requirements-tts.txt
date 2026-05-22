@@ -12,6 +12,8 @@ f5-tts>=1.0.0
 kokoro>=0.9.4
 soundfile>=0.12
 misaki[en]
+# ── NLP (transitive dep of f5-tts; pinned to avoid Cython 3.x build failures) ─
+spacy>=3.7,<3.9
 
 # ── Audio processing ─────────────────────────────────────────────────────────
 librosa==0.10.2.post1
