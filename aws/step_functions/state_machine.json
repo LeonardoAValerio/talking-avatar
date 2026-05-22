@@ -1,0 +1,73 @@
+{
+  "Comment": "Talking Avatar Pipeline — Step Functions State Machine",
+  "StartAt": "ValidateInput",
+  "States": {
+    "ValidateInput": {
+      "Type": "Pass",
+      "Comment": "Validate required fields exist in payload",
+      "Next": "SubmitBatchJob"
+    },
+    "SubmitBatchJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Parameters": {
+        "JobName.$": "States.Format('avatar-{}', $.job_id)",
+        "JobDefinition": "${BatchJobDefinitionArn}",
+        "JobQueue": "${BatchJobQueueArn}",
+        "ContainerOverrides": {
+          "Environment": [
+            { "Name": "TEXT", "Value.$": "$.text" },
+            { "Name": "VOICE_ID", "Value.$": "$.voice_id" },
+            { "Name": "AVATAR_S3_URI", "Value.$": "$.avatar_s3_uri" },
+            { "Name": "JOB_ID", "Value.$": "$.job_id" },
+            { "Name": "COMPOSE_TEMPLATE", "Value.$": "$.compose_template" },
+            { "Name": "OUTPUT_S3_URI", "Value.$": "$.output_s3_uri" }
+          ]
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["Batch.ServerException", "States.TaskFailed"],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0,
+          "Comment": "Retry on Spot interruption or transient failures"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "NotifyFailure"
+        }
+      ],
+      "Next": "NotifySuccess"
+    },
+    "NotifySuccess": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${NotifyLambdaArn}",
+        "Payload": {
+          "status": "success",
+          "job_id.$": "$.job_id",
+          "output_s3_uri.$": "$.output_s3_uri"
+        }
+      },
+      "End": true
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${NotifyLambdaArn}",
+        "Payload": {
+          "status": "failed",
+          "job_id.$": "$.job_id",
+          "error.$": "$.Error",
+          "cause.$": "$.Cause"
+        }
+      },
+      "End": true
+    }
+  }
+}

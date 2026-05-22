@@ -1,0 +1,67 @@
+# =============================================================================
+# Talking Avatar — Production Requirements (PINNED)
+# Target: shaoguo/faster_liveportrait:v3 + CUDA 11.8 + TRT 8.6.1
+# DO NOT upgrade versions without testing full pipeline end-to-end.
+# =============================================================================
+
+# ── Core ML stack (JoyVASA requires these exact versions) ────────────────────
+torch==2.2.2
+torchaudio==2.2.2
+torchvision==0.17.2
+xformers==0.0.25.post1
+
+# ── ONNX / TensorRT bridge ──────────────────────────────────────────────────
+onnx==1.16.1
+onnxruntime-gpu==1.18.0
+onnx2torch==1.5.14
+# NOTE: tensorrt 8.6.1 is pre-installed in shaoguo/faster_liveportrait:v3
+
+# ── Hugging Face ecosystem ───────────────────────────────────────────────────
+transformers==4.39.2
+diffusers==0.27.2
+accelerate==0.28.0
+huggingface_hub>=0.24
+hf_transfer
+
+# ── JoyVASA dependencies (from jdh-algo/JoyVASA/requirements.txt) ────────────
+audio-separator==0.17.2
+av==12.1.0
+bitsandbytes==0.43.1
+decord==0.6.0
+einops==0.8.0
+insightface==0.7.3
+librosa==0.10.2.post1
+mediapipe==0.10.14
+moviepy==1.0.3
+omegaconf==2.3.0
+opencv-python==4.10.0.84
+pillow==10.3.0
+pyyaml==6.0.1
+scipy==1.13.1
+imageio==2.34.2
+imageio-ffmpeg==0.5.1
+lmdb==1.4.1
+tqdm==4.66.4
+rich==13.7.1
+ffmpeg-python==0.2.0
+scikit-image==0.24.0
+albumentations==1.4.10
+matplotlib==3.9.0
+tyro==0.8.5
+pykalman==0.9.7
+tensorboardX==2.6.2.2
+
+# ── Compatibility pins (CRITICAL — do not change) ───────────────────────────
+numpy==1.26.4
+setuptools==70.0.0
+protobuf==3.20.3
+
+# ── TTS engines ──────────────────────────────────────────────────────────────
+f5-tts>=1.0.0
+kokoro>=0.9.4
+soundfile>=0.12
+misaki[en]
+
+# ── AWS / orchestration ──────────────────────────────────────────────────────
+boto3>=1.35
+pydantic>=2.7,<2.11

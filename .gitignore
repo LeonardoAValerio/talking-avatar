@@ -1,0 +1,60 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# === ML Models & Engines (download at build time) ===
+checkpoints/
+*.onnx
+*.engine
+*.trt
+*.pt
+*.pth
+*.safetensors
+*.bin
+
+# === Generated media ===
+output/
+renders/
+*.mp4
+*.wav
+*.mp3
+*.avi
+*.mkv
+
+# === Docker ===
+.docker/
+
+# === Node / Hyperframes ===
+node_modules/
+.next/
+package-lock.json
+
+# === AWS ===
+.env
+.env.*
+*.pem
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+logs/
+
+# === Temp ===
+/tmp/
+*.tmp

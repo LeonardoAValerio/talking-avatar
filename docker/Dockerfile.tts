@@ -1,0 +1,31 @@
+# =============================================================================
+# Talking Avatar — TTS-only Dockerfile (Local Development)
+# For machines with ≤6GB VRAM. Only TTS models, no video generation.
+# =============================================================================
+
+FROM python:3.10-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ffmpeg espeak-ng git git-lfs curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && git lfs install
+
+WORKDIR /app
+
+COPY requirements-tts.txt /app/requirements-tts.txt
+RUN pip install --no-cache-dir --upgrade pip==24.2 \
+    && pip install --no-cache-dir -r /app/requirements-tts.txt
+
+# Download TTS models only
+RUN huggingface-cli download hexgrad/Kokoro-82M --local-dir ./checkpoints/Kokoro-82M \
+    && huggingface-cli download ModelsLab/F5-tts-brazilian --local-dir ./checkpoints/F5-TTS-ptbr
+
+COPY src/tts/ /app/src/tts/
+COPY src/utils/ /app/src/utils/
+COPY config/ /app/config/
+COPY assets/voices/ /app/assets/voices/
+
+CMD ["python", "-m", "src.tts.f5tts_synth", "--help"]

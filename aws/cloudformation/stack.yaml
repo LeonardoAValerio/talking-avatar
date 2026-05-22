@@ -1,0 +1,48 @@
+# =============================================================================
+# Talking Avatar — AWS CloudFormation Stack (Placeholder)
+#
+# Implementation notes for Claude Code:
+# Deploy with: aws cloudformation deploy --template-file stack.yaml --stack-name talking-avatar
+#
+# Resources to create:
+# - S3 bucket (input avatars + output videos)
+# - ECR repository (Docker image)
+# - IAM roles (Lambda execution, Batch job, Step Functions)
+# - VPC + Security Group (for EC2 instances)
+# - AWS Batch: Compute Environment (g4dn.xlarge Spot), Job Queue, Job Definition
+# - Step Functions: State Machine
+# - Lambda: API trigger function
+# - API Gateway: REST endpoint for video generation requests
+# - CloudWatch: Log groups + billing alarm
+#
+# Key Batch Compute Environment settings:
+#   Type: MANAGED
+#   AllocationStrategy: SPOT_PRICE_CAPACITY_OPTIMIZED
+#   InstanceTypes: [g4dn.xlarge]
+#   MinvCpus: 0           # Scale to zero when idle (saves money)
+#   MaxvCpus: 4           # Max 1 instance (4 vCPUs = 1x g4dn.xlarge)
+#   ImageType: ECS_AL2023_NVIDIA
+#   # AMI: /aws/service/ecs/optimized-ami/amazon-linux-2/gpu
+#
+# Cost controls:
+#   - Spot Instances only (~US$ 0.23/h vs US$ 0.53/h On-Demand)
+#   - Auto-scale to 0 when no jobs
+#   - Job timeout: 900 seconds (15 min max)
+#   - Billing alarm at US$ 50/month
+# =============================================================================
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Talking Avatar — Video Generation Pipeline'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: talking-avatar
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+
+# TODO: Claude Code should implement the full CloudFormation template
+# based on the specifications above and in CLAUDE.md
+Resources: {}

@@ -1,0 +1,29 @@
+# =============================================================================
+# Talking Avatar — TTS-only Requirements (Local Development)
+# For machines with ≤6GB VRAM. Install with: pip install -r requirements-tts.txt
+# =============================================================================
+
+# ── Core (CPU or small GPU) ──────────────────────────────────────────────────
+torch==2.2.2
+torchaudio==2.2.2
+
+# ── TTS engines ──────────────────────────────────────────────────────────────
+f5-tts>=1.0.0
+kokoro>=0.9.4
+soundfile>=0.12
+misaki[en]
+
+# ── Audio processing ─────────────────────────────────────────────────────────
+librosa==0.10.2.post1
+scipy==1.13.1
+ffmpeg-python==0.2.0
+
+# ── Hugging Face (for model downloads) ───────────────────────────────────────
+huggingface_hub>=0.24
+hf_transfer
+transformers==4.39.2
+
+# ── Utils ────────────────────────────────────────────────────────────────────
+pyyaml==6.0.1
+rich==13.7.1
+numpy==1.26.4

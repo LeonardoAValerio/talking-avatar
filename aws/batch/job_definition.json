@@ -1,0 +1,36 @@
+{
+  "jobDefinitionName": "talking-avatar-job",
+  "type": "container",
+  "containerProperties": {
+    "image": "${ECR_IMAGE_URI}",
+    "vcpus": 4,
+    "memory": 15000,
+    "resourceRequirements": [
+      {
+        "type": "GPU",
+        "value": "1"
+      }
+    ],
+    "command": ["python", "-m", "src.pipeline", "--from-env"],
+    "executionRoleArn": "${ECS_EXECUTION_ROLE_ARN}",
+    "jobRoleArn": "${BATCH_JOB_ROLE_ARN}",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/batch/talking-avatar",
+        "awslogs-stream-prefix": "avatar"
+      }
+    },
+    "environment": [
+      { "name": "AWS_S3_BUCKET", "value": "${S3_BUCKET}" },
+      { "name": "AWS_DEFAULT_REGION", "value": "us-east-1" }
+    ]
+  },
+  "retryStrategy": {
+    "attempts": 2
+  },
+  "timeout": {
+    "attemptDurationSeconds": 900
+  },
+  "platformCapabilities": ["EC2"]
+}

@@ -1,0 +1,70 @@
+# =============================================================================
+# Talking Avatar — Pipeline Configuration
+# =============================================================================
+
+# ── TTS Engine ───────────────────────────────────────────────────────────────
+tts:
+  # Options: "f5tts_ptbr" (quality, voice cloning) or "kokoro" (fast, Apache 2.0)
+  engine: f5tts_ptbr
+
+  f5tts:
+    model: F5-TTS
+    ckpt_file: /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr/Brazilian_Portuguese/model_2600000.pt
+    vocab_file: /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr/vocab.txt
+    nfe_step: 32                # Sampling steps (higher = better quality, slower)
+    cross_fade_duration: 0.15
+    remove_silence: true
+
+  kokoro:
+    lang_code: p                # p = Portuguese (pt-br)
+    default_voice: pf_dora      # Options: pf_dora (F), pm_alex (M), pm_santa (M)
+    model_dir: /app/FasterLivePortrait/checkpoints/Kokoro-82M
+
+# ── Video Generation ─────────────────────────────────────────────────────────
+video:
+  engine: faster_liveportrait
+  flp_root: /app/FasterLivePortrait
+  config: configs/trt_infer.yaml   # TensorRT inference config
+  use_joyvasa: true
+  resolution: 512
+  fps: 25
+
+  # FasterLivePortrait YAML flags (see CLAUDE.md for impact on T4)
+  flag_relative_motion: true    # Anchors micro-movements to face polygons
+  flag_pasteback: true          # Injects face crop back into full frame (REQUIRED)
+  flag_stitching: true          # Smooth transitions at face boundary
+  flag_eye_retargeting: false   # Disable to save VRAM unless needed
+  flag_normalize_lip: true      # Commercial quality lip closure (KEEP TRUE)
+
+# ── Audio-Video Multiplexing ─────────────────────────────────────────────────
+mux:
+  audio_sample_rate: 24000      # F5-TTS outputs 24kHz
+  audio_channels: 1             # Mono
+  audio_codec: aac
+  audio_bitrate: 192k
+  video_codec: copy             # Don't re-encode video
+
+# ── Post-processing (Hyperframes) ───────────────────────────────────────────
+compose:
+  enabled: true
+  template: lower_third         # Template name in src/compose/templates/
+  quality: high                 # Hyperframes render quality
+  workers: 1                    # Single worker (T4 constraint)
+  params:
+    title: ""                   # Filled at runtime
+    subtitle: ""                # Filled at runtime
+    logo_url: null              # Optional: path to logo image
+    bg_music: null              # Optional: path to background music
+    captions_srt: null          # Optional: path to .srt subtitle file
+
+# ── Paths ────────────────────────────────────────────────────────────────────
+paths:
+  workdir: /tmp/talking-avatar  # Temp working directory per job
+  voices_dir: /app/assets/voices
+  output_dir: /tmp/talking-avatar/output
+
+# ── AWS (production only) ────────────────────────────────────────────────────
+aws:
+  s3_bucket: ""                 # Set via env var: AWS_S3_BUCKET
+  ecr_image: ""                 # Set via env var: AWS_ECR_IMAGE
+  region: us-east-1

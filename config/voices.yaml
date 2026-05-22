@@ -1,0 +1,35 @@
+# =============================================================================
+# Voice Profiles — Maps voice_id to reference audio/text for cloning
+#
+# For F5-TTS voice cloning:
+#   - ref_audio: 3-10 second WAV file of the target voice
+#   - ref_text:  exact transcription of the reference audio
+#
+# For Kokoro:
+#   - voice: one of the built-in voices (pf_dora, pm_alex, pm_santa for pt-br)
+# =============================================================================
+
+voices:
+  narrator_male_01:
+    engine: f5tts_ptbr
+    ref_audio: assets/voices/narrator_male_01.wav
+    ref_text: "Olá, este é um áudio de referência para clonagem de voz."
+    description: "Male narrator, calm professional tone"
+
+  narrator_female_01:
+    engine: f5tts_ptbr
+    ref_audio: assets/voices/narrator_female_01.wav
+    ref_text: "Olá, este é um áudio de referência para clonagem de voz."
+    description: "Female narrator, warm tone"
+
+  kokoro_dora:
+    engine: kokoro
+    voice: pf_dora
+    lang_code: p
+    description: "Kokoro built-in pt-br female (fast, no cloning)"
+
+  kokoro_alex:
+    engine: kokoro
+    voice: pm_alex
+    lang_code: p
+    description: "Kokoro built-in pt-br male (fast, no cloning)"
