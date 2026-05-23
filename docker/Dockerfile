@@ -30,8 +30,8 @@ RUN git clone --depth 1 https://github.com/warmshao/FasterLivePortrait /app/Fast
 
 # ── Python dependencies (PINNED — do not upgrade) ────────────────────────────
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip==24.2 \
-    && pip install --no-cache-dir -r /app/requirements.txt
+RUN python3 -m pip install --no-cache-dir --upgrade pip==24.2 \
+    && python3 -m pip install --no-cache-dir -r /app/requirements.txt
 
 # ── grid-sample3d TRT plugin (CRITICAL: add arch 75 for T4) ─────────────────
 RUN git clone https://github.com/SeanWangJS/grid-sample3d-trt-plugin /opt/grid-sample3d-trt-plugin \
