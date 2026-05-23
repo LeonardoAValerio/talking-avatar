@@ -9,7 +9,7 @@ FROM shaoguo/faster_liveportrait:v3 AS base
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH \
+    PATH=/opt/pytorch/bin:/usr/local/cuda/bin:$PATH \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:/opt/tensorrt/lib:$LD_LIBRARY_PATH \
     TENSORRT_HOME=/opt/tensorrt
 
