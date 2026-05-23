@@ -6,17 +6,19 @@
 
 FROM shaoguo/faster_liveportrait:v3 AS base
 
+# TensorRT lives at /opt/TensorRT-8.6.1.6 inside the base image (not /opt/tensorrt)
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    PATH=/opt/pytorch/bin:/usr/local/cuda/bin:$PATH \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/opt/tensorrt/lib:$LD_LIBRARY_PATH \
-    TENSORRT_HOME=/opt/tensorrt
+    PATH=/usr/local/cuda/bin:$PATH \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/opt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH \
+    TENSORRT_HOME=/opt/TensorRT-8.6.1.6
 
 # ── System dependencies ──────────────────────────────────────────────────────
+# python3-pip is required: base image has /usr/bin/python3 but no pip module
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates git git-lfs ffmpeg espeak-ng \
-        build-essential cmake \
+        build-essential cmake python3-pip \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/* \
@@ -33,12 +35,13 @@ COPY requirements.txt /app/requirements.txt
 RUN python3 -m pip install --no-cache-dir --upgrade pip==24.2 \
     && python3 -m pip install --no-cache-dir -r /app/requirements.txt
 
-# ── grid-sample3d TRT plugin (CRITICAL: add arch 75 for T4) ─────────────────
-RUN git clone https://github.com/SeanWangJS/grid-sample3d-trt-plugin /opt/grid-sample3d-trt-plugin \
-    && cd /opt/grid-sample3d-trt-plugin \
+# ── grid-sample3d TRT plugin ─────────────────────────────────────────────────
+# The base image already has the repo at /opt/grid-sample3d-trt-plugin.
+# We only recompile to add arch 75 (T4) which the upstream CMakeLists.txt omits.
+RUN cd /opt/grid-sample3d-trt-plugin \
     && sed -i 's/"70;80;86;89"/"60;70;75;80;86"/' CMakeLists.txt \
     && sed -i '/add_subdirectory(test)/d; /enable_testing()/d' CMakeLists.txt \
-    && mkdir build && cd build \
+    && mkdir -p build && cd build \
     && cmake .. -DTensorRT_ROOT=${TENSORRT_HOME} \
     && make -j$(nproc) \
     && test -f /opt/grid-sample3d-trt-plugin/build/libgrid_sample_3d_plugin.so
@@ -57,7 +60,7 @@ RUN mkdir -p /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr \
        --local-dir /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr
 
 # ── Pre-compile TRT engines (MUST run on T4 / same GPU arch as production) ───
-# This saves ~2 min per cold start. Engines are GPU-architecture-specific.
+# If the build machine is not a T4, skip this and run build_trt_engines.sh on EC2.
 RUN cd /app/FasterLivePortrait \
     && bash scripts/all_onnx2trt.sh \
     && bash scripts/all_onnx2trt_animal.sh || true
