@@ -7,12 +7,11 @@
 FROM shaoguo/faster_liveportrait:v3 AS base
 
 # TensorRT lives at /opt/TensorRT-8.6.1.6 inside the base image (not /opt/tensorrt)
-# Miniconda3 provides Python 3.10 independently of the system Python (3.8)
+# Python 3.10 + pip are already in /root/miniconda3 (conda base env of the base image)
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    CONDA_DIR=/opt/miniconda3 \
-    PATH=/opt/miniconda3/bin:/usr/local/cuda/bin:$PATH \
+    PATH=/root/miniconda3/bin:/usr/local/cuda/bin:$PATH \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:/opt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH \
     TENSORRT_HOME=/opt/TensorRT-8.6.1.6
 
@@ -24,15 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/* \
     && git lfs install
-
-# ── Python 3.10 via Miniconda (self-contained, no PPA required) ──────────────
-# Miniconda3-py310 ships Python 3.10 + pip out of the box.
-RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-Linux-x86_64.sh \
-        -o /tmp/miniconda.sh \
-    && bash /tmp/miniconda.sh -b -p ${CONDA_DIR} \
-    && rm /tmp/miniconda.sh \
-    && conda clean -afy \
-    && python3 --version
 
 WORKDIR /app
 
