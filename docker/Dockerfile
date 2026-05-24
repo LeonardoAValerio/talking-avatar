@@ -15,10 +15,17 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TENSORRT_HOME=/opt/TensorRT-8.6.1.6
 
 # ── System dependencies ──────────────────────────────────────────────────────
-# python3-pip is required: base image has /usr/bin/python3 but no pip module
+# Base image has Python 3.8; all ML models require Python 3.10.
+# Install 3.10 via deadsnakes PPA and make it the default python/python3.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates git git-lfs ffmpeg espeak-ng \
-        build-essential cmake python3-pip \
+        build-essential cmake software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        python3.10 python3.10-dev python3.10-distutils python3.10-venv \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
+    && ln -sf /usr/bin/python3.10 /usr/local/bin/python3 \
+    && ln -sf /usr/bin/python3.10 /usr/local/bin/python \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/* \
