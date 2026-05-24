@@ -7,28 +7,32 @@
 FROM shaoguo/faster_liveportrait:v3 AS base
 
 # TensorRT lives at /opt/TensorRT-8.6.1.6 inside the base image (not /opt/tensorrt)
+# Miniconda3 provides Python 3.10 independently of the system Python (3.8)
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    PATH=/usr/local/cuda/bin:$PATH \
+    CONDA_DIR=/opt/miniconda3 \
+    PATH=/opt/miniconda3/bin:/usr/local/cuda/bin:$PATH \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:/opt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH \
     TENSORRT_HOME=/opt/TensorRT-8.6.1.6
 
 # ── System dependencies ──────────────────────────────────────────────────────
-# Base image has Python 3.8; all ML models require Python 3.10.
-# Install 3.10 via deadsnakes PPA and make it the default python/python3.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates git git-lfs ffmpeg espeak-ng \
-        build-essential cmake software-properties-common \
-    && add-apt-repository -y ppa:deadsnakes/ppa \
-    && apt-get update && apt-get install -y --no-install-recommends python3.10 \
-    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-    && ln -sf /usr/bin/python3.10 /usr/local/bin/python3 \
-    && ln -sf /usr/bin/python3.10 /usr/local/bin/python \
+        build-essential cmake \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/* \
     && git lfs install
+
+# ── Python 3.10 via Miniconda (self-contained, no PPA required) ──────────────
+# Miniconda3-py310 ships Python 3.10 + pip out of the box.
+RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-Linux-x86_64.sh \
+        -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -b -p ${CONDA_DIR} \
+    && rm /tmp/miniconda.sh \
+    && conda clean -afy \
+    && python3 --version
 
 WORKDIR /app
 
@@ -38,8 +42,8 @@ RUN git clone --depth 1 https://github.com/warmshao/FasterLivePortrait /app/Fast
 
 # ── Python dependencies (PINNED — do not upgrade) ────────────────────────────
 COPY requirements.txt /app/requirements.txt
-RUN python3 -m pip install --no-cache-dir --upgrade pip==24.2 \
-    && python3 -m pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip==24.2 \
+    && pip install --no-cache-dir -r /app/requirements.txt
 
 # ── grid-sample3d TRT plugin ─────────────────────────────────────────────────
 # The base image already has the repo at /opt/grid-sample3d-trt-plugin.
