@@ -54,7 +54,7 @@ tensorboardX==2.6.2.2
 # ── Compatibility pins (CRITICAL — do not change) ───────────────────────────
 numpy==1.26.4
 setuptools==70.0.0
-protobuf==3.20.3
+protobuf>=4.25.3,<5
 
 # ── TTS engines ──────────────────────────────────────────────────────────────
 f5-tts>=1.0.0
