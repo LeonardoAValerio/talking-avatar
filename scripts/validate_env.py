@@ -62,16 +62,15 @@ def main():
         errors += 1
 
     print("\n=== Key Dependencies ===")
-    deps = {
+    critical_deps = {
         "numpy": "1.26",
         "onnx": None,
         "onnxruntime": None,
         "transformers": None,
-        "diffusers": None,
         "cv2": None,
         "mediapipe": None,
     }
-    for pkg, expected_prefix in deps.items():
+    for pkg, expected_prefix in critical_deps.items():
         try:
             mod = importlib.import_module(pkg)
             ver = getattr(mod, "__version__", "?")
@@ -80,9 +79,16 @@ def main():
                 ok = False
                 errors += 1
             check(pkg, ok, f"v{ver}")
-        except ImportError:
-            check(pkg, False, "not installed")
+        except Exception as e:
+            check(pkg, False, f"import failed: {type(e).__name__}: {e}")
             errors += 1
+
+    # JoyVASA runtime dependency — warning only (not critical for TTS-only mode)
+    try:
+        import diffusers
+        check("diffusers", True, f"v{diffusers.__version__} (JoyVASA)")
+    except Exception as e:
+        print(f"⚠️  diffusers — import failed: {type(e).__name__}: {e}")
 
     print("\n=== TTS Engines ===")
     for pkg in ["f5_tts", "kokoro"]:
