@@ -19,7 +19,7 @@ onnx2torch==1.5.14
 # ── Hugging Face ecosystem ───────────────────────────────────────────────────
 transformers==4.39.2
 diffusers==0.27.2
-accelerate==0.28.0
+accelerate>=0.33.0,!=1.7.0
 huggingface_hub>=0.24
 hf_transfer
 
@@ -35,6 +35,8 @@ mediapipe==0.10.14
 moviepy==1.0.3
 omegaconf==2.3.0
 opencv-python==4.10.0.84
+opencv-contrib-python==4.10.0.84
+opencv-python-headless==4.10.0.84
 pillow==10.3.0
 pyyaml==6.0.1
 scipy==1.13.1
@@ -55,9 +57,10 @@ tensorboardX==2.6.2.2
 numpy==1.26.4
 setuptools==70.0.0
 protobuf>=4.25.3,<5
+spacy>=3.7,<3.9
 
 # ── TTS engines ──────────────────────────────────────────────────────────────
-f5-tts>=1.0.0
+f5-tts==1.1.20
 kokoro>=0.9.4
 soundfile>=0.12
 misaki[en]
