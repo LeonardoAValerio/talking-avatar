@@ -54,10 +54,12 @@ RUN cd /app/FasterLivePortrait \
     && huggingface-cli download jdh-algo/JoyVASA --local-dir ./checkpoints/JoyVASA \
     && huggingface-cli download facebook/wav2vec2-base-960h --local-dir ./checkpoints/wav2vec2-base-960h
 
-# ── F5-TTS pt-br checkpoint ──────────────────────────────────────────────────
+# ── F5-TTS pt-br checkpoint (only the final production checkpoint, not all 7) ─
 RUN mkdir -p /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr \
     && huggingface-cli download ModelsLab/F5-tts-brazilian \
-       --local-dir /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr
+       --local-dir /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr \
+       --include "Brazilian_Portuguese/model_2600000.pt" "vocab.txt" \
+    && rm -rf /app/FasterLivePortrait/checkpoints/F5-TTS-ptbr/.cache
 
 # ── Pre-compile TRT engines (MUST run on T4 / same GPU arch as production) ───
 # If the build machine is not a T4, skip this and run build_trt_engines.sh on EC2.
